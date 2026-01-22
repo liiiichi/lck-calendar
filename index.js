@@ -1,6 +1,8 @@
 const request = require("superagent");
 const icsTool = require("ics");
 const fs = require("fs");
+const { FILE } = require("dns");
+const { text } = require("stream/consumers");
 
 const TEAM_ACRONYMS = {
     "Gen.G": "GEN",
@@ -130,15 +132,32 @@ async function generateLCKCalendar() {
         }).filter(e => e !== null);
 
         // 'productId' maps to the 'PRODID' in your example
-        const { error, value } = icsTool.createEvents(events, {
+        const { error, value: newIcsContent } = icsTool.createEvents(events, {
             productId: 'LCK2026',
             calName: 'LCK2026'
         });
 
         if (error) throw error;
 
-        fs.writeFileSync("./lck_2026.ics", value);
-        console.log(`✅ Success! Updated ${events.length} matches.`);
+        const FILE_PATH = "./lck_2026.ics";
+        let hasChanged = true;
+
+        if (fs.existsSync(FILE_PATH)) {
+            const currentIcsContent = fs.readFileSync(FILE_PATH, "utf-8");
+            const clean = (text) => text.replace(/DTSTAMP:.*\s+/g, "");
+
+            if (clean(newIcsContent) === clean(currentIcsContent)) {
+                hasChanged = false;
+            }
+        }
+
+        if (hasChanged) {
+            fs.writeFileSync(FILE_PATH, newIcsContent);
+            console.log(`✅ Changes detected. Updated ${FILE_PATH} with ${events.length} matches.`);
+        }
+        else {
+            console.log(`zzz No data changes detected. Skipping file write.`);
+        }
 
     } catch (err) {
         console.error("❌ Error:", err.message);
