@@ -1,0 +1,59 @@
+name: Update LCK Calendar
+
+on:
+  schedule:
+    # Runs at 00:00 UTC daily (Which is 09:00 AM in Korea/Japan)
+    # This is perfect because matches usually start in the afternoon.
+    - cron: '0 0 * * *'
+  # Allows you to click "Run workflow" manually for testing
+  workflow_dispatch:
+
+# PERMISSIONS: This is required to let the bot write to your repo
+permissions:
+  contents: write
+
+jobs:
+  update-calendar:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Calendar Script
+        # TIMEOUT: Stop after 10 mins if something goes wrong (Safety)
+        timeout-minutes: 10
+        # ENV: This injects the secrets so 'process.env.LEAGUE_USER' works!
+        env:
+          LEAGUE_USER: ${{ secrets.LEAGUE_USER }}
+          LEAGUE_PASS: ${{ secrets.LEAGUE_PASS }}
+        run: node index.js
+
+      - name: Check for changes
+        id: git-check
+        run: |
+          git config --global user.name "Calendar Bot"
+          git config --global user.email "bot@noreply.github.com"
+          # Check if the .ics file actually changed
+          if [[ -n $(git status --porcelain) ]]; then
+            echo "changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "changes=false" >> $GITHUB_OUTPUT
+            echo "No changes detected. Skipping push."
+          fi
+
+      - name: Commit and Push
+        # Only run this step if there ARE changes
+        if: steps.git-check.outputs.changes == 'true'
+        run: |
+          git add lck_2026.ics
+          git commit -m "Update LCK Calendar: $(date +'%Y-%m-%d')"
+          git push
