@@ -5,7 +5,7 @@ on:
     branches:
       - main
   schedule:
-    - cron: '50 7 * * *'
+    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 # PERMISSIONS: This is required to let the bot write to your repo
