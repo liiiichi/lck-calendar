@@ -1,11 +1,11 @@
 name: Update LCK Calendar
 
 on:
+  push:
+    branches:
+      - main
   schedule:
-    # Runs at 00:00 UTC daily (Which is 09:00 AM in Korea/Japan)
-    # This is perfect because matches usually start in the afternoon.
-    - cron: '0 0 * * *'
-  # Allows you to click "Run workflow" manually for testing
+    - cron: '50 7 * * *'
   workflow_dispatch:
 
 # PERMISSIONS: This is required to let the bot write to your repo
