@@ -8,12 +8,12 @@ const TEAM_ACRONYMS = {
     "Gen.G": "GEN",
     "T1": "T1",
     "Nongshim RedForce": "NS",
-    "BRION": "BRO",
+    "HANJIN BRION": "BRO",
     "DN SOOPers": "DNS",
     "Dplus Kia": "DK",
     "BNK FEARX": "BFX",
     "KT Rolster": "KT",
-    "DRX": "DRX",
+    "Kiwoom DRX": "DRX",
     "Hanwha Life Esports": "HLE",
 };
 
@@ -43,7 +43,7 @@ async function generateLCKCalendar() {
             format: "json",
             tables: "MatchSchedule",
             fields: "Team1, Team2, Team1Score, Team2Score, DateTime_UTC, MatchId, ShownName, BestOf",
-            where: "DateTime_UTC >= '2026-01-01' AND ShownName LIKE 'LCK%' AND ShownName NOT LIKE 'LCK CL%'",
+            where: "DateTime_UTC >= '2026-01-01' AND ShownName LIKE 'LCK%' AND ShownName NOT LIKE 'LCK CL%' AND ShownName NOT LIKE 'LCK AS%'",
             order_by: "DateTime_UTC ASC",
             limit: "200"
         };
